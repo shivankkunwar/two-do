@@ -8,6 +8,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        'app-bg': '#278D8D',
+        'app-black': '#090C16',
+        'card-1': '#B2F3DF',
+        'card-2': '#EEC7AD',
+        'card-3': '#FFD289',
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
@@ -63,6 +68,8 @@ export default {
       borderRadius: {
         'xl': '12px',
         '2xl': '16px',
+        '3xl': '24px',
+        '4xl': '32px',
       },
       animation: {
         'bounce-in': 'bounceIn 0.6s ease-out',

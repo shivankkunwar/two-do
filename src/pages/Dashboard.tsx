@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Filter, Sparkles, Target, CheckCircle2 } from "lucide-react";
+import { Filter, Sparkles, Target, CheckCircle2, Plus, Clock } from "lucide-react";
 import { useTodos } from "../hooks/useTodos";
 import { type Todo, type CreateTodoData } from "../types";
 import Header from "../components/layout/Header";
@@ -67,109 +67,158 @@ const Dashboard = () => {
   const completedCount = todos.filter(todo => todo.status === "completed").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <Header onAddTodo={handleAddTodo} />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <div className="min-h-screen">
+        <Header onAddTodo={handleAddTodo} />
 
-      <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        {/* Welcome Section */}
-        <div className="text-center py-6">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <Sparkles className="w-6 h-6 text-primary-500" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Your Dashboard</h2>
-            <Sparkles className="w-6 h-6 text-secondary-500" />
+        <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
+          {/* Welcome Section */}
+          <div className="text-center py-6">
+            <div className="inline-flex items-center gap-2 mb-3">
+              <Sparkles className="w-6 h-6 text-white dark:text-card-3" />
+              <h2 className="text-2xl font-bold text-white">Your Dashboard</h2>
+              <Sparkles className="w-6 h-6 text-white dark:text-card-3" />
+            </div>
+            <p className="text-white/80">Let's get things done today! 🚀</p>
           </div>
-          <p className="text-gray-600 dark:text-gray-300">Let's get things done today! 🚀</p>
-        </div>
 
-        {/* Stats Cards - Mobile Optimized */}
-        <div className="grid grid-cols-3 gap-3 sm:gap-4">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center animate-bounce-in">
-            <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-800 rounded-xl flex items-center justify-center">
-              <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          {/* Stats Cards - Compact Mobile Row */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            {/* Total Tasks Card - Compact */}
+            <div className="rounded-2xl shadow-sm animate-bounce-in p-3 bg-gradient-to-br from-[var(--card-total)] to-[rgba(var(--card-total-rgb),0.8)] relative overflow-hidden">
+              <div className="text-center">
+                <div className="w-8 h-8 mx-auto mb-1 rounded-lg flex items-center justify-center bg-[rgba(39,141,141,0.2)] dark:bg-[rgba(255,255,255,0.1)]">
+                  <Target className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <div className="text-xl font-bold text-[var(--text)]">{todos.length}</div>
+                <div className="text-xs text-[var(--text)] opacity-80">Total</div>
+              </div>
+              {/* Mini progress bar */}
+              <div className="mt-2 h-1 bg-[rgba(0,0,0,0.1)] rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-[var(--accent)] transition-all duration-500"
+                  style={{ width: todos.length > 0 ? `${(completedCount / todos.length) * 100}%` : '0%' }}
+                />
+              </div>
             </div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{todos.length}</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Total</div>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center animate-bounce-in" style={{ animationDelay: '0.1s' }}>
-            <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-warning-100 to-warning-200 dark:from-warning-900 dark:to-warning-800 rounded-xl flex items-center justify-center">
-              <span className="text-xl">⏳</span>
-            </div>
-            <div className="text-2xl font-bold text-warning-600 dark:text-warning-400">{pendingCount}</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Pending</div>
-          </div>
-          
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center animate-bounce-in" style={{ animationDelay: '0.2s' }}>
-            <div className="w-12 h-12 mx-auto mb-2 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-secondary-900 dark:to-secondary-800 rounded-xl flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-secondary-600 dark:text-secondary-400" />
-            </div>
-            <div className="text-2xl font-bold text-secondary-600 dark:text-secondary-400">{completedCount}</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">Done</div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter tasks:</span>
-            </div>
-            <div className="flex gap-2 flex-wrap">
-              {(["all", "pending", "completed"] as const).map((status) => (
-                <Button
-                  key={status}
-                  variant={filter === status ? "primary" : "outline"}
-                  size="sm"
-                  onClick={() => setFilter(status)}
-                  className={`rounded-full px-4 py-2 text-xs font-medium transition-all duration-200 ${
-                    filter === status 
-                      ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg transform scale-105' 
-                      : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+            
+            {/* Pending Tasks Card - Compact */}
+            <div className="rounded-2xl shadow-sm animate-bounce-in p-3 bg-gradient-to-br from-[var(--card-pending)] to-[rgba(var(--card-pending-rgb),0.8)] relative overflow-hidden" 
+                 style={{ animationDelay: '0.1s' }}>
+              <div className="text-center">
+                <div className="w-8 h-8 mx-auto mb-1 rounded-lg flex items-center justify-center bg-[rgba(255,210,137,0.3)] dark:bg-[rgba(255,255,255,0.1)]">
+                  <Clock className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <div className="text-xl font-bold text-[var(--text)]">{pendingCount}</div>
+                <div className="text-xs text-[var(--text)] opacity-80">Pending</div>
+              </div>
+              {/* Mini urgency bar */}
+              <div className="mt-2 h-1 bg-[rgba(0,0,0,0.1)] rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-500 ${
+                    pendingCount > 3 ? 'bg-red-400' : pendingCount > 1 ? 'bg-yellow-400' : 'bg-green-400'
                   }`}
-                >
-                  {status === "all" ? "All Tasks" : status === "pending" ? "To Do" : "Completed"}
-                </Button>
-              ))}
+                  style={{ width: `${Math.min((pendingCount / 5) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+            
+            {/* Completed Tasks Card - Compact */}
+            <div className="rounded-2xl shadow-sm animate-bounce-in p-3 bg-gradient-to-br from-[var(--card-done)] to-[rgba(var(--card-done-rgb),0.8)] relative overflow-hidden" 
+                 style={{ animationDelay: '0.2s' }}>
+              <div className="text-center">
+                <div className="w-8 h-8 mx-auto mb-1 rounded-lg flex items-center justify-center bg-[rgba(238,199,173,0.3)] dark:bg-[rgba(255,255,255,0.1)]">
+                  <CheckCircle2 className="w-4 h-4 text-[var(--accent)]" />
+                </div>
+                <div className="text-xl font-bold text-[var(--text)]">{completedCount}</div>
+                <div className="text-xs text-[var(--text)] opacity-80">Done</div>
+              </div>
+              {/* Mini achievement bar */}
+              <div className="mt-2 h-1 bg-[rgba(0,0,0,0.1)] rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all duration-500"
+                  style={{ width: todos.length > 0 ? `${(completedCount / todos.length) * 100}%` : '0%' }}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 animate-slide-in">
-            <div className="flex items-center gap-2">
-              <span className="text-red-600 dark:text-red-400 text-2xl">⚠️</span>
-              <p className="text-sm text-red-600 dark:text-red-400 font-medium">{error}</p>
+          {/* Filters */}
+          <div className="rounded-3xl p-4 shadow-sm dark:border dark:border-white/10"
+               style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-white dark:text-card-3" />
+                <span className="text-sm font-medium text-white dark:text-white">Filter tasks:</span>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {(["all", "pending", "completed"] as const).map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setFilter(status)}
+                    className={`rounded-full px-4 py-2 text-xs font-medium transition-all duration-200 ${
+                      filter === status 
+                        ? 'shadow-lg transform scale-105' 
+                        : 'hover:scale-105'
+                    }`}
+                    style={{
+                      backgroundColor: filter === status ? '#FFD289' : 'rgba(255, 255, 255, 0.2)',
+                      color: filter === status ? '#090C16' : 'white'
+                    }}
+                  >
+                    {status === "all" ? "All Tasks" : status === "pending" ? "To Do" : "Completed"}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Todo List */}
-        <div className="animate-slide-in">
-          <TodoList
-            todos={filteredTodos}
-            loading={loading}
-            onToggleStatus={toggleTodoStatus}
-            onEdit={handleEditTodo}
-            onDelete={deleteTodo}
-          />
-        </div>
+          {/* Error Display */}
+          {error && (
+            <div className="rounded-3xl p-4 animate-slide-in"
+                 style={{ backgroundColor: 'rgba(255, 0, 0, 0.1)', border: '1px solid rgba(255, 0, 0, 0.2)' }}>
+              <div className="flex items-center gap-2">
+                <span className="text-red-200 text-2xl">⚠️</span>
+                <p className="text-sm text-red-200 font-medium">{error}</p>
+              </div>
+            </div>
+          )}
 
-        {/* Modal */}
-        <Modal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          title={editingTodo ? "Edit Todo" : "Create New Todo"}
-        >
-          <TodoForm
-            todo={editingTodo || undefined}
-            onSubmit={handleFormSubmit}
-            onCancel={handleCloseModal}
-            loading={formLoading}
-          />
-        </Modal>
-      </main>
+          {/* Todo List */}
+          <div className="animate-slide-in">
+            <TodoList
+              todos={filteredTodos}
+              loading={loading}
+              onToggleStatus={toggleTodoStatus}
+              onEdit={handleEditTodo}
+              onDelete={deleteTodo}
+            />
+          </div>
+
+          {/* Floating Add Button for Mobile */}
+          <button
+            onClick={handleAddTodo}
+            className="fixed bottom-6 right-6 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transform hover:scale-110 active:scale-95 transition-all duration-200 sm:hidden"
+            style={{ backgroundColor: '#FFD289' }}
+          >
+            <Plus className="w-8 h-8" style={{ color: '#090C16' }} />
+          </button>
+
+          {/* Modal */}
+          <Modal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            title={editingTodo ? "Edit Todo" : "Create New Todo"}
+          >
+            <TodoForm
+              todo={editingTodo || undefined}
+              onSubmit={handleFormSubmit}
+              onCancel={handleCloseModal}
+              loading={formLoading}
+            />
+          </Modal>
+        </main>
+      </div>
     </div>
   );
 };

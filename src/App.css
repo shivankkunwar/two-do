@@ -1,0 +1,16 @@
+/* Root element and body background */
+#root {
+  min-height: 100vh;
+  background-color: #278D8D;
+}
+
+.dark #root {
+  background-color: #090C16;
+}
+
+/* Ensure full height */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}

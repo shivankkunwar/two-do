@@ -69,15 +69,11 @@ const TodoList = ({ todos, loading, onToggleStatus, onEdit, onDelete }: TodoList
   }
 
   return (
-    <div className="space-y-4">
-      {todos.map((todo, index) => (
-        <div
-          key={todo._id}
-          style={{ animationDelay: `${index * 0.1}s` }}
-          className="animate-slide-in"
-        >
-          <TodoItem
-            todo={todo}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {todos.map((todo) => (
+        <div key={todo._id} className="min-h-[200px]"> {/* For squarish feel */}
+          <TodoItem 
+            todo={todo} 
             onToggleStatus={onToggleStatus}
             onEdit={onEdit}
             onDelete={onDelete}

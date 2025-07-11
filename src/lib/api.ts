@@ -1,8 +1,11 @@
 import axios from "axios";
 
+// Fallback to localhost if no env variable is set
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+
 export const api = axios.create({
-    baseURL : import.meta.env.VITE_API_URL,
-    withCredentials : true,
+    baseURL: API_URL,
+    withCredentials: true,
 })
 
 api.interceptors.request.use((config) => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Edit2, Trash2, Calendar, Clock } from "lucide-react";
+import { Check, Edit2, Trash2, Calendar, Clock, CheckCircle } from "lucide-react";
 import { type Todo } from "../../types";
 import Button from "../ui/Button";
 
@@ -12,6 +12,7 @@ interface TodoItemProps {
 
 const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => {
   const [loading, setLoading] = useState(false);
+  const isDarkMode = document.documentElement.classList.contains('dark');
 
   const handleToggleStatus = async () => {
     setLoading(true);
@@ -39,40 +40,86 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
 
   const isOverdue = todo.dueDate && new Date(todo.dueDate) < new Date() && todo.status === "pending";
 
+  // Calculate days until due date for nuanced color coding
+  const daysUntilDue = todo.dueDate
+    ? Math.ceil(
+        (new Date(todo.dueDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+      )
+    : null;
+
+  // Dynamic badge colors for better contrast in both themes
+  const badgeBg = isOverdue
+    ? isDarkMode
+      ? "rgba(255, 0, 0, 0.25)"
+      : "rgba(255, 0, 0, 0.1)"
+    : daysUntilDue !== null && daysUntilDue <= 2
+    ? isDarkMode
+      ? "rgba(255, 210, 137, 0.25)" // amber in dark mode
+      : "rgba(255, 210, 137, 0.3)"
+    : isDarkMode
+    ? "rgba(39, 141, 141, 0.3)"
+    : "rgba(39, 141, 141, 0.1)";
+
+  const badgeText = isOverdue
+    ? isDarkMode
+      ? "#ff6b6b"
+      : "#cc0000"
+    : daysUntilDue !== null && daysUntilDue <= 2
+    ? isDarkMode
+      ? "#FFD289"
+      : "#CC8500"
+    : isDarkMode
+    ? "#B2F3DF"
+    : "#278D8D";
+
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-2xl shadow-sm border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-slide-in ${
-      todo.status === "completed" 
-        ? "border-secondary-200 dark:border-secondary-800 bg-gradient-to-br from-secondary-50 to-green-50 dark:from-secondary-900/20 dark:to-green-900/20" 
-        : isOverdue 
-        ? "border-red-200 dark:border-red-800 bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20" 
-        : "border-gray-200 dark:border-gray-700 hover:border-primary-200 dark:hover:border-primary-700"
-    }`}>
+    <div className="rounded-3xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01] animate-slide-in relative overflow-hidden p-1"
+         style={{ 
+           backgroundColor: todo.status === "completed" 
+             ? 'var(--card-done)' 
+             : isOverdue 
+             ? 'rgba(255, 100, 100, 0.2)' 
+             : 'var(--card-total)',
+           color: 'var(--text)'
+         }}>
+      
+      {/* Quick Done Button - Floating on the right */}
+      {todo.status === "pending" && (
+        <button
+          onClick={handleToggleStatus}
+          disabled={loading}
+          className="absolute top-4 right-4 w-10 h-10 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
+          style={{ 
+            backgroundColor: '#278D8D',
+            color: 'white'
+          }}
+          title="Mark as done"
+        >
+          {loading ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <CheckCircle className="w-5 h-5" />
+          )}
+        </button>
+      )}
       
       {/* Mobile-First Layout */}
-      <div className="p-4 space-y-3">
+      <div className="p-5 space-y-3" style={{ paddingRight: todo.status === "pending" ? '4rem' : '1.25rem' }}>
         {/* Header Row */}
         <div className="flex items-start justify-between gap-3">
-          {/* Status Toggle */}
-          <button
-            onClick={handleToggleStatus}
-            disabled={loading}
-            className={`flex-shrink-0 w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${
-              todo.status === "completed"
-                ? "bg-gradient-to-br from-secondary-400 to-secondary-600 border-secondary-500 text-white shadow-lg"
-                : "border-gray-300 dark:border-gray-600 hover:border-primary-400 dark:hover:border-primary-500 bg-white dark:bg-gray-700"
-            }`}
-          >
-            {todo.status === "completed" && <Check className="w-4 h-4" />}
-            {loading && <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />}
-          </button>
-
           {/* Status Badge */}
           <div className="flex-shrink-0">
             <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-full ${
               todo.status === "completed"
-                ? "bg-secondary-100 dark:bg-secondary-900 text-secondary-800 dark:text-secondary-200"
-                : "bg-warning-100 dark:bg-warning-900 text-warning-800 dark:text-warning-200"
-            }`}>
+                ? ''
+                : ''
+            }`}
+            style={{
+              backgroundColor: todo.status === "completed" 
+                ? 'rgba(39, 141, 141, 0.2)' 
+                : 'rgba(255, 210, 137, 0.5)',
+              color: 'var(--text)'
+            }}>
               {todo.status === "completed" ? (
                 <>
                   <span className="text-sm">✅</span>
@@ -92,29 +139,29 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
         <div className="space-y-2">
           <h3 className={`text-lg font-semibold transition-all duration-200 ${
             todo.status === "completed" 
-              ? "line-through text-gray-500 dark:text-gray-400" 
-              : "text-gray-900 dark:text-white"
-          }`}>
+              ? "line-through opacity-60" 
+              : ""
+          }`} style={{ color: 'var(--text)' }}>
             {todo.title}
           </h3>
           
           {todo.description && (
             <p className={`text-sm leading-relaxed ${
               todo.status === "completed" 
-                ? "line-through text-gray-400 dark:text-gray-500" 
-                : "text-gray-600 dark:text-gray-300"
-            }`}>
+                ? "line-through opacity-60" 
+                : "opacity-80"
+            }`} style={{ color: 'var(--text)' }}>
               {todo.description}
             </p>
           )}
 
           {/* Due Date */}
           {todo.dueDate && (
-            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-              isOverdue 
-                ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300" 
-                : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
-            }`}>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium`}
+                 style={{
+                   backgroundColor: badgeBg,
+                   color: badgeText,
+                 }}>
               <Calendar className="w-3 h-3" />
               <span>Due: {formatDate(todo.dueDate)}</span>
               {isOverdue && <span className="font-bold">⚠️ Overdue</span>}
@@ -123,28 +170,35 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
         </div>
 
         {/* Actions Row */}
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
-          <Button
-            variant="ghost"
-            size="sm"
+        <div className="flex items-center justify-end gap-2 pt-2" 
+             style={{ borderTop: '1px solid rgba(9, 12, 22, 0.1)' }}>
+          <button
             onClick={() => onEdit(todo)}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 border"
+            style={{ 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(39, 141, 141, 0.1)',
+              color: isDarkMode ? '#FFD289' : '#278D8D',
+              borderColor: 'var(--text)'
+            }}
           >
-            <Edit2 className="w-4 h-4" />
-            <span className="text-xs font-medium">Edit</span>
-          </Button>
+            <Edit2 className="w-4 h-4" style={{ color: 'var(--text)' }} />
+            <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>Edit</span>
+          </button>
           
-          <Button
-            variant="ghost"
-            size="sm"
+          <button
             onClick={handleDelete}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-all duration-200 hover:scale-105"
+            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 border"
+            style={{ 
+              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 0, 0, 0.1)',
+              color: isDarkMode ? '#ff6b6b' : '#cc0000',
+              borderColor: isDarkMode ? 'rgba(255, 107, 107, 0.3)' : 'rgba(204, 0, 0, 0.3)'
+            }}
           >
             <Trash2 className="w-4 h-4" />
             <span className="text-xs font-medium">Delete</span>
-          </Button>
+          </button>
         </div>
       </div>
     </div>

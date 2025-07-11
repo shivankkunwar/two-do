@@ -1,71 +1,36 @@
 @import "tailwindcss";
-:root {
-  --primary: #3b82f6;
-  --secondary: #10b981;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light;
-  color: rgba(55, 65, 81, 1);
-  background-color: #fafafa;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-#root {
-  min-height: 100vh;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-/* Focus styles */
-.focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
-}
-
-/* Animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+  :root {
+    --bg: #278D8D;
+    --text: #090C16;
+    --card-total: #B2F3DF; /* Mint for total */
+    --card-pending: #FFD289; /* Yellow for pending */
+    --card-done: #EEC7AD; /* Peach for done */
+    --accent: #090C16;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out;
+  .dark {
+    --bg: #090C16;
+    --text: #FFFFFF;
+    --card-total: #1A5C5C; /* Darker mint */
+    --card-pending: #996600; /* Darker yellow */
+    --card-done: #8B5C3A; /* Darker peach */
+    --accent: #FFD289;
+  }
+
+  body {
+    @apply bg-[var(--bg)] text-[var(--text)];
+  }
+
+
+@layer components {
+  /* iOS-style card with large rounded corners */
+  .ios-card {
+    @apply rounded-3xl shadow-lg backdrop-blur-sm;
+  }
+
+  /* Smooth transitions for theme changes */
+  * {
+    @apply transition-colors duration-200;
+  }
 }

@@ -36,7 +36,7 @@ export const useTodos = () => {
   const updateTodo = useCallback(async (id: string, updates: UpdateTodoData) => {
     try {
       setError(null);
-      const { data } = await api.patch(`/todos/${id}`, updates);
+      const { data } = await api.put(`/todos/${id}`, updates);
       setTodos(prev => 
         prev.map(todo => todo._id === id ? data.data : todo)
       );
