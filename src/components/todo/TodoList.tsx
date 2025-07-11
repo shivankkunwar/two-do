@@ -76,7 +76,7 @@ const TodoList = ({ todos, loading, onToggleStatus, onEdit, onDelete, pageSize =
         let newSortedOrder = arrayMove(localOrder, oldIndex, newIndex);
         
         // Keep completed at the bottom
-        newSortedOrder.sort((a, b) => {
+        newSortedOrder.sort((a: Todo, b: Todo) => {
           if (a.status === 'completed' && b.status !== 'completed') return 1;
           if (a.status !== 'completed' && b.status === 'completed') return -1;
           return 0;
