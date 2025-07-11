@@ -2,7 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-
+import { inject } from "@vercel/analytics";
+inject()
 // Initialize dark mode from localStorage or system preference
 const savedDarkMode = localStorage.getItem('darkMode');
 if (savedDarkMode !== null) {
