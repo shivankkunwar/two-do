@@ -15,6 +15,11 @@ const Register = () => {
   const navigate = useNavigate();
   const { setUser } = useAuth();
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -27,6 +32,31 @@ const Register = () => {
     setLoading(true);
     setError("");
 
+    // Client-side validation
+    if (!formData.userName.trim()) {
+      setError("Username is required");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.userName.length < 3) {
+      setError("Username must be at least 3 characters long");
+      setLoading(false);
+      return;
+    }
+
+    if (!validateEmail(formData.email)) {
+      setError("Please enter a valid email address");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data } = await api.post("/auth/register", formData);
       // Store token and user data
@@ -35,7 +65,24 @@ const Register = () => {
       // Registration successful - redirect to dashboard
       navigate("/");
     } catch (err: any) {
-      setError(err.response?.data?.message || "Registration failed");
+      // Better error handling - show specific backend errors
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err.response?.data?.errors) {
+        // Handle validation errors array
+        const errors = err.response.data.errors;
+        if (Array.isArray(errors)) {
+          setError(errors.map((e: any) => e.msg || e.message).join(", "));
+        } else {
+          setError(errors);
+        }
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -67,6 +114,8 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Choose a username"
               required
+              minLength={3}
+              title="Username must be at least 3 characters long"
                 className="w-full px-4 py-3 backdrop-blur-sm rounded-2xl border focus:outline-none focus:ring-2 transition-all"
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
@@ -87,6 +136,8 @@ const Register = () => {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+              title="Please enter a valid email address"
                 className="w-full px-4 py-3 backdrop-blur-sm rounded-2xl border focus:outline-none focus:ring-2 transition-all"
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',
@@ -108,6 +159,7 @@ const Register = () => {
                 placeholder="Create a password (min 6 chars)"
               required
               minLength={6}
+              title="Password must be at least 6 characters long"
                 className="w-full px-4 py-3 backdrop-blur-sm rounded-2xl border focus:outline-none focus:ring-2 transition-all"
                 style={{ 
                   backgroundColor: 'rgba(255, 255, 255, 0.5)',

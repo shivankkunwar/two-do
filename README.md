@@ -32,4 +32,11 @@ A clean, fast to-do list app. Sign up, log in, and manage your tasks with ease.
 ## Environment Variables
 Copy `.env.example` to `.env` and fill in your values.
 
+## ✨ Bonus Features Included
+- **🌙 Dark Mode Toggle** - Switch between light and dark themes
+- **🎯 Drag & Drop Reordering** - Drag todos to reorder them (desktop & mobile)
+- **📊 Filter by Status** - View all, pending, or completed todos
+- **📱 Responsive Design** - Works great on mobile and desktop
+- **🔄 Real-time Updates** - Changes sync instantly
+- **📈 Progress Stats** - Visual progress tracking with animated cards
 
