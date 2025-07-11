@@ -20,7 +20,7 @@ const Header = ({ onAddTodo }: HeaderProps) => {
 
   return (
     <header className="shadow-sm sticky top-0 z-50" 
-            style={{ backgroundColor: isDarkMode ? '#090C16' : 'rgba(255, 255, 255, 0.1)' }}>
+            style={{ backgroundColor: isDarkMode ? '#090C16' : '#FFFFFF' }}>
       <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo/Title */}
