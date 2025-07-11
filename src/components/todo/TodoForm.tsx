@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar, Save, X } from "lucide-react";
 import { type Todo, type CreateTodoData } from "../../types";
-import Button from "../ui/Button";
-import Input from "../ui/Input";
 
 interface TodoFormProps {
   todo?: Todo;

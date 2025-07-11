@@ -1,7 +1,6 @@
 import { Plus, LogOut, User, Moon, Sun } from "lucide-react";
 import { useAuth } from "../../hooks/useAuth.tsx";
 import { useDarkMode } from "../../hooks/useDarkMode.tsx";
-import Button from "../ui/Button";
 
 interface HeaderProps {
   onAddTodo: () => void;

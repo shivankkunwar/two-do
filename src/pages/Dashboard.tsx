@@ -6,7 +6,6 @@ import Header from "../components/layout/Header";
 import TodoList from "../components/todo/TodoList";
 import TodoForm from "../components/todo/TodoForm";
 import Modal from "../components/ui/Modal";
-import Button from "../components/ui/Button";
 
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

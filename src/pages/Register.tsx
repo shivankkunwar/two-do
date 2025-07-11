@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAuth } from "../hooks/useAuth.tsx";
-import Button from "../components/ui/Button";
-import Input from "../components/ui/Input";
 
 const Register = () => {
   const [formData, setFormData] = useState({

@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Check, Edit2, Trash2, Calendar, Clock, CheckCircle, Flame, AlertTriangle, Star } from "lucide-react";
+import { Edit2, Trash2, Calendar, Clock, CheckCircle, Flame, AlertTriangle, Star } from "lucide-react";
 import { type Todo } from "../../types";
-import Button from "../ui/Button";
 
 interface TodoItemProps {
   todo: Todo;
