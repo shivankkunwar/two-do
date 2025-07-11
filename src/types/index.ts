@@ -9,6 +9,7 @@ export interface Todo {
   description?: string;
   status: "pending" | "completed";
   dueDate?: string;
+  priority?: 'low' | 'medium' | 'high';
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface CreateTodoData {
   description?: string;
   status?: "pending" | "completed";
   dueDate?: string;
+  priority?: 'low' | 'medium' | 'high';
 }
 
 export interface UpdateTodoData {
@@ -25,4 +27,5 @@ export interface UpdateTodoData {
   description?: string;
   status?: "pending" | "completed";
   dueDate?: string;
+  priority?: 'low' | 'medium' | 'high';
 } 

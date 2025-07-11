@@ -11,7 +11,7 @@ import Button from "../components/ui/Button";
 const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
-  const [filter, setFilter] = useState<"all" | "pending" | "completed">("all");
+  const [filter, setFilter] = useState<"all" | "pending" | "completed">("pending");
   const [formLoading, setFormLoading] = useState(false);
 
   const {
@@ -26,9 +26,9 @@ const Dashboard = () => {
   } = useTodos();
 
   useEffect(() => {
-    const statusFilter = filter === "all" ? undefined : filter;
-    fetchTodos(statusFilter);
-  }, [fetchTodos, filter]);
+    // Fetch all todos once; client-side filtering will be applied for views
+    fetchTodos();
+  }, [fetchTodos]);
 
   const handleAddTodo = () => {
     setEditingTodo(null);
@@ -62,7 +62,7 @@ const Dashboard = () => {
     setEditingTodo(null);
   };
 
-  const filteredTodos = todos;
+  const filteredTodos = filter === "all" ? todos : todos.filter(t => t.status === filter);
   const pendingCount = todos.filter(todo => todo.status === "pending").length;
   const completedCount = todos.filter(todo => todo.status === "completed").length;
 

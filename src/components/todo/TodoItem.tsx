@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Edit2, Trash2, Calendar, Clock, CheckCircle } from "lucide-react";
+import { Check, Edit2, Trash2, Calendar, Clock, CheckCircle, Flame, AlertTriangle, Star } from "lucide-react";
 import { type Todo } from "../../types";
 import Button from "../ui/Button";
 
@@ -72,8 +72,15 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
     ? "#B2F3DF"
     : "#278D8D";
 
+  // Add priority color mapping
+  const priorityColors = {
+    low: { bg: 'rgba(39, 141, 141, 0.1)', text: '#278D8D' },
+    medium: { bg: 'rgba(255, 210, 137, 0.2)', text: '#CC8500' },
+    high: { bg: 'rgba(255, 0, 0, 0.1)', text: '#cc0000' }
+  };
+
   return (
-    <div className="rounded-3xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01] animate-slide-in relative overflow-hidden p-1"
+    <div className="rounded-3xl shadow-sm transition-all duration-300 hover:shadow-lg hover:scale-[1.01] relative overflow-hidden p-1 hover:border-gradient-to-r from-primary-300 to-secondary-300 dark:from-primary-700 dark:to-secondary-700 ${isOverdue ? 'animate-pulse-slow' : 'animate-fade-in'}" 
          style={{ 
            backgroundColor: todo.status === "completed" 
              ? 'var(--card-done)' 
@@ -88,7 +95,7 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
         <button
           onClick={handleToggleStatus}
           disabled={loading}
-          className="absolute top-4 right-4 w-10 h-10 rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
+          className="absolute top-3 right-3 w-8 h-8 rounded-full shadow-md hover:shadow-lg transform hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
           style={{ 
             backgroundColor: '#278D8D',
             color: 'white'
@@ -104,7 +111,7 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
       )}
       
       {/* Mobile-First Layout */}
-      <div className="p-5 space-y-3" style={{ paddingRight: todo.status === "pending" ? '4rem' : '1.25rem' }}>
+      <div className="p-3 space-y-1" style={{ paddingRight: todo.status === "pending" ? '3rem' : '0.75rem' }}>
         {/* Header Row */}
         <div className="flex items-start justify-between gap-3">
           {/* Status Badge */}
@@ -136,17 +143,31 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
         </div>
 
         {/* Content */}
-        <div className="space-y-2">
-          <h3 className={`text-lg font-semibold transition-all duration-200 ${
-            todo.status === "completed" 
-              ? "line-through opacity-60" 
-              : ""
-          }`} style={{ color: 'var(--text)' }}>
-            {todo.title}
-          </h3>
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            {todo.priority && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full"
+                    style={{
+                      backgroundColor: priorityColors[todo.priority]?.bg || 'rgba(128, 128, 128, 0.1)',
+                      color: priorityColors[todo.priority]?.text || 'gray',
+                    }}>
+                  {todo.priority === 'high' ? <Flame className="w-3 h-3" /> :
+                   todo.priority === 'medium' ? <AlertTriangle className="w-3 h-3" /> :
+                   <Star className="w-3 h-3" />}
+                  {todo.priority.charAt(0).toUpperCase() + todo.priority.slice(1)}
+                </span>
+            )}
+            <h3 className={`text-base font-semibold transition-all duration-200 ${
+              todo.status === "completed" 
+                ? "line-through opacity-60 decoration-wavy decoration-secondary-500" 
+                : ""
+            }`} style={{ color: 'var(--text)' }}>
+              {todo.title}
+            </h3>
+          </div>
           
           {todo.description && (
-            <p className={`text-sm leading-relaxed ${
+            <p className={`text-xs leading-relaxed line-clamp-3 ${
               todo.status === "completed" 
                 ? "line-through opacity-60" 
                 : "opacity-80"
@@ -154,51 +175,48 @@ const TodoItem = ({ todo, onToggleStatus, onEdit, onDelete }: TodoItemProps) => 
               {todo.description}
             </p>
           )}
+        </div>
 
-          {/* Due Date */}
+        {/* Footer Row - combined due date left, actions right */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-gray-700">
           {todo.dueDate && (
-            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium`}
+            <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-colors duration-200 hover:bg-opacity-80`}
                  style={{
                    backgroundColor: badgeBg,
                    color: badgeText,
                  }}>
               <Calendar className="w-3 h-3" />
               <span>Due: {formatDate(todo.dueDate)}</span>
-              {isOverdue && <span className="font-bold">⚠️ Overdue</span>}
+              {isOverdue && <span className="font-bold">⚠️</span>}
             </div>
           )}
-        </div>
-
-        {/* Actions Row */}
-        <div className="flex items-center justify-end gap-2 pt-2" 
-             style={{ borderTop: '1px solid rgba(9, 12, 22, 0.1)' }}>
-          <button
-            onClick={() => onEdit(todo)}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 border"
-            style={{ 
-              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(39, 141, 141, 0.1)',
-              color: isDarkMode ? '#FFD289' : '#278D8D',
-              borderColor: 'var(--text)'
-            }}
-          >
-            <Edit2 className="w-4 h-4" style={{ color: 'var(--text)' }} />
-            <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>Edit</span>
-          </button>
-          
-          <button
-            onClick={handleDelete}
-            disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 border"
-            style={{ 
-              backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 0, 0, 0.1)',
-              color: isDarkMode ? '#ff6b6b' : '#cc0000',
-              borderColor: isDarkMode ? 'rgba(255, 107, 107, 0.3)' : 'rgba(204, 0, 0, 0.3)'
-            }}
-          >
-            <Trash2 className="w-4 h-4" />
-            <span className="text-xs font-medium">Delete</span>
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onEdit(todo)}
+              disabled={loading}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg transition-all duration-200 hover:scale-105 hover:bg-opacity-90 border border-transparent hover:border-primary-200 dark:hover:border-primary-700"
+              style={{ 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(39, 141, 141, 0.1)',
+                color: isDarkMode ? '#FFD289' : '#278D8D',
+              }}
+            >
+              <Edit2 className="w-3 h-3" style={{ color: 'var(--text)' }} />
+              <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>Edit</span>
+            </button>
+            
+            <button
+              onClick={handleDelete}
+              disabled={loading}
+              className="flex items-center gap-1 px-2 py-1 rounded-lg transition-all duration-200 hover:scale-105 hover:bg-opacity-90 border border-transparent hover:border-red-200 dark:hover:border-red-700"
+              style={{ 
+                backgroundColor: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 0, 0, 0.1)',
+                color: isDarkMode ? '#ff6b6b' : '#cc0000',
+              }}
+            >
+              <Trash2 className="w-3 h-3" />
+              <span className="text-xs font-medium">Delete</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
