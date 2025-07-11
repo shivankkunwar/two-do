@@ -1,43 +1,78 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { api } from "../lib/api";
+import { type User } from "../types";
 
-interface User {
-  email: string;
-  userName: string;
-}
-
-type LoginFn = (email: string, password: string) => Promise<void>;
-type LogoutFn = () => void;
-
-interface AuthCtx {
+interface AuthContextType {
   user: User | null;
-  login: LoginFn;
-  logout: LogoutFn;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  setUser: (user: User | null) => void;
 }
 
-const AuthContext = createContext<AuthCtx>({} as AuthCtx);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login: LoginFn = async (email, password) => {
+  // Check for existing session on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Verify token and get user info
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await api.get("/user");
+      setUser(data.data);
+    } catch (error) {
+      // Token is invalid, remove it
+      localStorage.removeItem("token");
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (email: string, password: string) => {
     const { data } = await api.post("/auth/login", { email, password });
-    localStorage.setItem("accessToken", data.token);
-    const { data: me } = await api.get("/user");
-    setUser(me);
+    localStorage.setItem("token", data.token);
+    setUser(data.user);
   };
 
-  const logout: LogoutFn = async () => {
-    await api.post("/auth/logout");
-    localStorage.removeItem("accessToken");
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      // Logout failed on server, but we'll clear local state anyway
+      console.error("Logout failed:", error);
+    } finally {
+      localStorage.removeItem("token");
+      setUser(null);
+    }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    setUser,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext); 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}; 
